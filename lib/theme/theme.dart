@@ -5,22 +5,21 @@ class AppTheme {
     brightness: Brightness.light,
     useMaterial3: true,
     colorScheme: const ColorScheme.light(
-      primary: Color(0xff4F46E5),
-      secondary: Color(0xff7C3AED),
+      primary: Color(0xffFAFBFD),       //background
+      secondary: Color(0xff1E0D3E),     //scaffold
 
-      // primaryContainer: Color(0xffF5F5F5),      // Scaffold
-      // onPrimaryContainer: Color(0xff4F46E5),    // AppBar/FAB
+      primaryContainer: Color(0xffFFFFFF),      // card
+      onPrimaryContainer: Color(0xffE2E8F0),    //card border
 
+      surface: Color(0xffF1F5F9),      //input bg
+      onSurface: Color(0xffE2E8F0),   //input border
 
-      primaryContainer: Color(0xffF5F5F5),      // Scaffold
-      onPrimaryContainer: Color(0xFF1E0D3E),    // AppBar/FAB
+      onPrimary: Color(0xff0F172A),      //Primary text
+      onSecondary: Color(0xff64748B),   //secondary text
+      outline: Color(0xffF1F5F9),       //Divider
 
+      tertiary: Color(0xffFFFFFF)    //Drawer surface
 
-      surface: Colors.white,
-      onSurface: Colors.black87,
-
-      onPrimary: Colors.white,
-      outline: Color(0xffD6D6D6),
     ),
   );
 
@@ -28,17 +27,21 @@ class AppTheme {
     brightness: Brightness.dark,
     useMaterial3: true,
     colorScheme: const ColorScheme.dark(
-      primary: Color(0xff7C8CFF),
-      secondary: Color(0xffB388FF),
+      primary: Color(0xff10111A),       //background
+      secondary: Color(0xff1E0D3E),     //scaffold
 
-      primaryContainer: Color(0xff121212),      // Scaffold
-      onPrimaryContainer: Color(0xff1E1E1E),    // AppBar/FAB
+      primaryContainer: Color(0xff181A25),      // card surface
+      onPrimaryContainer: Color(0xff222538),    //card border
 
-      surface: Color(0xff1F1F1F),
-      onSurface: Colors.white,
+      surface: Color(0xff1F2131),      //input bg
+      onSurface: Color(0xff2F324C),   //input border
 
-      onPrimary: Colors.white,
-      outline: Color(0xff555555),
+      onPrimary: Color(0xffF1F5F9),      //Primary text
+      onSecondary: Color(0xff94A3B8),   //secondary text
+      outline: Color(0xff1E2131),       //Divider
+
+      tertiary: Color(0xff151724)    //Drawer surface
+
     ),
   );
 }

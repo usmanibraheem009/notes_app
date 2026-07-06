@@ -17,30 +17,52 @@ class _NotesDrawerState extends State<NotesDrawer> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Drawer(
-      backgroundColor: Theme.of(context).colorScheme.onPrimaryContainer,
+      backgroundColor: colorScheme.tertiary,
       width: MediaQuery.of(context).size.width * 0.5,
       child: Column(
         children: [
           UserAccountsDrawerHeader(
-            accountName: Text(user?.displayName ?? 'Guest'),
-            accountEmail: Text(user?.email ?? 'No email availabe'),
-            currentAccountPicture: CircleAvatar(
-              radius: 30,
-              child: Icon(Icons.person),
+            margin: EdgeInsets.zero,
+            decoration: BoxDecoration(
+              color: colorScheme.tertiary,
             ),
+            accountName: Text(
+              user?.displayName ?? 'Guest',
+              style: TextStyle(
+                  color: colorScheme.onPrimary, fontWeight: FontWeight.w400),
+            ),
+            accountEmail: Text(
+              user?.email ?? 'No email availabe',
+              style: TextStyle(
+                  color: colorScheme.onPrimary, fontWeight: FontWeight.w400),
+            ),
+            currentAccountPicture: CircleAvatar(
+              backgroundColor: colorScheme.onSecondary,
+              radius: 30,
+              child: Icon(
+                Icons.person,
+                color: colorScheme.onPrimary,
+              ),
+            ),
+          ),
+          Divider(
+            color: colorScheme.onSurface,
+            thickness: 1,
+            height: 1,
           ),
           ListTile(
             leading: Icon(
               Icons.home,
-              color: Colors.white,
+              color: colorScheme.onPrimary,
             ),
             title: Text(
               'Home',
               style: Theme.of(context)
                   .textTheme
                   .titleMedium!
-                  .copyWith(color: Theme.of(context).colorScheme.onPrimary),
+                  .copyWith(color: colorScheme.onPrimary),
             ),
             onTap: () {
               Navigator.pop(context);
@@ -49,14 +71,14 @@ class _NotesDrawerState extends State<NotesDrawer> {
           ListTile(
             leading: Icon(
               Icons.star,
-              color: Colors.white,
+              color: colorScheme.onPrimary,
             ),
             title: Text(
               'Favourites',
               style: Theme.of(context)
                   .textTheme
                   .titleMedium!
-                  .copyWith(color: Theme.of(context).colorScheme.onPrimary),
+                  .copyWith(color: colorScheme.onPrimary),
             ),
             onTap: () {
               Navigator.pop(context);
@@ -65,17 +87,17 @@ class _NotesDrawerState extends State<NotesDrawer> {
             },
           ),
           ListTile(
-            leading: const Icon(Icons.settings, color: Colors.white),
+            leading: Icon(Icons.settings, color: colorScheme.onPrimary),
             title: Text(
               'Settings',
               style: Theme.of(context)
                   .textTheme
                   .titleMedium!
-                  .copyWith(color: Theme.of(context).colorScheme.onPrimary),
+                  .copyWith(color: colorScheme.onPrimary),
             ),
             onTap: () {
               Navigator.pop(
-                  context); // close drawer first — per the earlier fix
+                  context);
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => const SettingsScreen()),
@@ -85,14 +107,14 @@ class _NotesDrawerState extends State<NotesDrawer> {
           ListTile(
             leading: Icon(
               Icons.logout,
-              color: Colors.white,
+              color: colorScheme.onPrimary,
             ),
             title: Text(
               'LogOut',
               style: Theme.of(context)
                   .textTheme
                   .titleMedium!
-                  .copyWith(color: Theme.of(context).colorScheme.onPrimary),
+                  .copyWith(color: colorScheme.onPrimary),
             ),
             onTap: () {
               Navigator.pop(context);

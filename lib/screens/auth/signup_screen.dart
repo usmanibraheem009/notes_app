@@ -102,42 +102,37 @@ class _SignupScreenState extends State<SignupScreen> {
                   },
                   ),
                   SizedBox(height: 15),
-                  InkWell(
-                    onTap: () async{
-                      
-                    },
-                    child: RoundButton(
-                      onTap: (){
-                        if(formKey.currentState!.validate()){
-                        setState(() {
-                          isLoading= true;
-                        });
-                      if(passwordController.text == confirmPasswordController.text){
-                         AuthMethods().signUp(emailController: emailController, passwordController: passwordController, nameController: nameController).then((value){
-                          Utils().showToast('user Created Successfully');
-                          Navigator.pushReplacement(context, MaterialPageRoute(builder: (ctx)=>HomeScreen()));
-                          setState(() {
-                            isLoading= false;
-                          });
-                          
-                        }).onError((error, StackTrace){
-                          Utils().showToast(error.toString());
-                          setState(() {
-                            isLoading= false;
-                          });
-                        });
-                      }else{
-                        Utils().showToast('Password does not match');
+                  RoundButton(
+                    onTap: (){
+                      if(formKey.currentState!.validate()){
+                      setState(() {
+                        isLoading= true;
+                      });
+                    if(passwordController.text == confirmPasswordController.text){
+                       AuthMethods().signUp(emailController: emailController, passwordController: passwordController, nameController: nameController).then((value){
+                        Utils().showToast('user Created Successfully');
+                        Navigator.pushReplacement(context, MaterialPageRoute(builder: (ctx)=>HomeScreen()));
                         setState(() {
                           isLoading= false;
                         });
-                      }
-                      }
-                      },
-                    btnText: 'Signup',
-                    isLoading: isLoading,
-                    color: Theme.of(context).buttonTheme.colorScheme!.onPrimaryContainer,
-                    ),
+                        
+                      }).onError((error, StackTrace){
+                        Utils().showToast(error.toString());
+                        setState(() {
+                          isLoading= false;
+                        });
+                      });
+                    }else{
+                      Utils().showToast('Password does not match');
+                      setState(() {
+                        isLoading= false;
+                      });
+                    }
+                    }
+                    },
+                  btnText: 'Signup',
+                  isLoading: isLoading,
+                  color: Theme.of(context).buttonTheme.colorScheme!.primary,
                   ),
                   SizedBox(height: 10,),
                   Row(

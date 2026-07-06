@@ -80,12 +80,17 @@ class _LoginScreenState extends State<LoginScreen> {
                 },
               btnText: 'Login', 
               isLoading: isLoading,
-              color: Theme.of(context).buttonTheme.colorScheme!.onPrimaryContainer,
+              color: Theme.of(context).buttonTheme.colorScheme!.primary,
               ),
               Row(
                 children: [
                   Text('Doesn\'t have an account?',),
-                  TextButton(onPressed: (){
+                  TextButton(
+                    style: ButtonStyle(
+                      splashFactory: NoSplash.splashFactory,
+                      enableFeedback: false
+                    ),
+                    onPressed: (){
                     Navigator.push(context, MaterialPageRoute(builder: (ctx)=>SignupScreen()));
                   }, child: Text('SignUp')
                   ),

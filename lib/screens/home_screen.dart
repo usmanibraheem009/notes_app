@@ -60,22 +60,14 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    debugPrint('Primary: ${Theme.of(context).colorScheme.primary}');
-    debugPrint(
-        'PrimaryContainer: ${Theme.of(context).colorScheme.primaryContainer}');
-    debugPrint(
-        'OnPrimaryContainer: ${Theme.of(context).colorScheme.onPrimaryContainer}');
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+      backgroundColor: Theme.of(context).colorScheme.primary,
       appBar: AppBar(
         iconTheme: const IconThemeData(color: Colors.white),
-        backgroundColor: Theme.of(context).colorScheme.onPrimaryContainer,
+        backgroundColor: Theme.of(context).colorScheme.primary,
         title: Text(
           'Home Screen',
-          style: Theme.of(context)
-              .textTheme
-              .titleLarge!
-              .copyWith(color: Theme.of(context).colorScheme.onPrimary),
+          style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onPrimary),
         ),
         centerTitle: true,
       ),
@@ -91,6 +83,7 @@ class _HomeScreenState extends State<HomeScreen> {
               decoration: InputDecoration(
                 labelText: 'Search',
                 hintText: 'Search',
+                fillColor: Theme.of(context).colorScheme.surface,
                 prefixIcon: Icon(Icons.search),
                 contentPadding: EdgeInsets.all(10),
                 border: OutlineInputBorder(

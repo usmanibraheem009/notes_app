@@ -148,7 +148,7 @@ class NoteDetails extends StatelessWidget {
                       .textTheme
                       .bodyLarge!
                       .copyWith(
-                        color: Theme.of(context).colorScheme.primary,
+                        color: Theme.of(context).colorScheme.onSurface,
                       )
                       .copyWith(fontWeight: FontWeight.w400),
                 ),

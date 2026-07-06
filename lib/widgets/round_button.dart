@@ -19,7 +19,7 @@ class RoundButton extends StatelessWidget {
           color: color,
           borderRadius: BorderRadius.circular(15),
           border: Border.all(
-            color: Colors.black,
+            color: Theme.of(context).colorScheme.tertiary,
             width: 1,
           )
         ),
