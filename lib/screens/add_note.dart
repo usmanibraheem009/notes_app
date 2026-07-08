@@ -1,7 +1,9 @@
 import 'package:daily_notes_app/constants/constants.dart';
 import 'package:daily_notes_app/providers/add_note_provider.dart';
+import 'package:daily_notes_app/utils/utils.dart';
 import 'package:daily_notes_app/widgets/input_field.dart';
 import 'package:daily_notes_app/widgets/round_button.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -26,7 +28,9 @@ class _AddNoteState extends State<AddNote> {
     super.initState();
 
     if (widget.isEditMode && widget.id != null) {
-      noteRef = FirebaseDatabase.instance.ref('notes').child(widget.id!);
+      noteRef = FirebaseDatabase.instance
+      .ref('notes')
+      .child(FirebaseAuth.instance.currentUser!.uid).child(widget.id!);
       _loadNote();
     }
   }
@@ -35,6 +39,8 @@ class _AddNoteState extends State<AddNote> {
   final descriptionController = TextEditingController();
   bool isEnabled = false;
   bool isFavorite = false;
+  bool isPinned = false;
+  bool isLocked = false;
   DateTime? reminderDateTime;
 
   @override
@@ -46,8 +52,9 @@ class _AddNoteState extends State<AddNote> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+      backgroundColor: Theme.of(context).colorScheme.primary,
       appBar: AppBar(
         leading: IconButton(
             onPressed: () {
@@ -55,15 +62,13 @@ class _AddNoteState extends State<AddNote> {
             },
             icon: Icon(
               Icons.arrow_back_ios_new,
-              color: Colors.white,
+              color: colorScheme.onPrimary,
             )),
-        backgroundColor: Theme.of(context).colorScheme.onPrimaryContainer,
+        backgroundColor: colorScheme.primary,
         title: Text(
           widget.isEditMode ? 'Edit Note' : 'Add Note',
-          style: Theme.of(context)
-              .textTheme
-              .titleLarge!
-              .copyWith(color: Theme.of(context).colorScheme.onPrimary),
+          style: TextStyle(
+              fontWeight: FontWeight.bold, color: colorScheme.onPrimary),
         ),
         centerTitle: true,
       ),
@@ -106,8 +111,11 @@ class _AddNoteState extends State<AddNote> {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 16, vertical: 10),
                         decoration: BoxDecoration(
+                            color: colorScheme.primaryContainer,
                             borderRadius: BorderRadius.circular(10),
-                            border: Border.all(width: 1, color: Colors.black)),
+                            border: Border.all(
+                                width: 1,
+                                color: colorScheme.onPrimaryContainer)),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -117,11 +125,15 @@ class _AddNoteState extends State<AddNote> {
                                 Text(
                                   'Enable Reminder',
                                   style: TextStyle(
+                                      color: colorScheme.onPrimary,
                                       fontSize: 16,
                                       fontWeight: FontWeight.w500),
                                 ),
                                 Switch(
                                     value: isEnabled,
+                                    activeThumbColor: colorScheme.onPrimary,
+                                    inactiveThumbColor: colorScheme.onPrimary,
+                                    inactiveTrackColor: colorScheme.onSurface,
                                     onChanged: (value) => {
                                           setState(() {
                                             isEnabled = value;
@@ -131,15 +143,23 @@ class _AddNoteState extends State<AddNote> {
                             ),
                             if (isEnabled) ...[
                               SizedBox(height: 10),
-                              Text(reminderDateTime == null
-                                  ? 'No reminder time is selected'
-                                  : 'Reminder set for ${DateFormat('dd MM yyyy • hh:mm a').format(reminderDateTime!)}'),
+                              Text(
+                                reminderDateTime == null
+                                    ? 'No reminder time is selected'
+                                    : 'Reminder set for ${DateFormat('dd MM yyyy • hh:mm a').format(reminderDateTime!)}',
+                                style: TextStyle(color: colorScheme.onPrimary),
+                              ),
                               const SizedBox(
                                 height: 10,
                               ),
                               OutlinedButton(
+                                  style: OutlinedButton.styleFrom(
+                                      backgroundColor: colorScheme.onSecondary),
                                   onPressed: _pickReminder,
-                                  child: Text('Pick Date'))
+                                  child: Text(
+                                    'Pick Date',
+                                    style: TextStyle(color: Colors.white),
+                                  ))
                             ]
                           ],
                         ),
@@ -152,18 +172,11 @@ class _AddNoteState extends State<AddNote> {
                         onTap: () async {
                           if (titleController.text.isEmpty ||
                               descriptionController.text.isEmpty) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                  content: Text('Please fill all fields')),
-                            );
+                            Utils().showToast('Please fill up all the fields');
                             return;
                           }
                           if (isEnabled && reminderDateTime == null) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                  content: Text(
-                                      'Please select reminder date & time')),
-                            );
+                            Utils().showToast('Please select reminder date and time');
                             return;
                           }
 
@@ -173,21 +186,19 @@ class _AddNoteState extends State<AddNote> {
                               description: descriptionController.text,
                               reminderEnabled: isEnabled,
                               reminderDateTime: reminderDateTime,
-                              isFavorite: isFavorite);
+                              isFavorite: isFavorite,
+                              isPinned: isPinned,
+                              isLocked: isLocked);
 
                           if (!context.mounted) return;
 
                           if (notesProvider.errorMessage != null) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                  content: Text(notesProvider.errorMessage!)),
-                            );
+                            Utils().showToast(notesProvider.errorMessage!);
                             return;
                           }
                           Navigator.pop(context);
                         },
                         btnText: widget.isEditMode ? 'Update Note' : 'Add Note',
-                        color: Theme.of(context).colorScheme.onPrimaryContainer,
                       )
                     ],
                   ),
@@ -201,16 +212,64 @@ class _AddNoteState extends State<AddNote> {
   }
 
   Future<void> _pickReminder() async {
+    final scheme = Theme.of(context).colorScheme;
     final date = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
       firstDate: DateTime.now(),
       lastDate: DateTime(2030),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: scheme.copyWith(
+              primary: scheme
+                  .secondaryContainer, // header bg — your button-purple, reads as an accent
+              onPrimary: Colors.white, // header text
+              surface: scheme
+                  .primaryContainer, // calendar bg — your "card" white/dark surface
+              onSurface: scheme.onPrimary,
+            ),
+            datePickerTheme: DatePickerThemeData(
+              headerBackgroundColor: scheme.surface, // the missing piece
+              headerForegroundColor: Colors.white,
+              backgroundColor: scheme.primaryContainer,
+            ),
+          ),
+          child: child!,
+        );
+      },
     );
 
     if (date == null) return;
-    final time =
-        await showTimePicker(context: context, initialTime: TimeOfDay.now());
+
+    final time = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.now(),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: scheme.copyWith(
+              primary: scheme
+                  .secondaryContainer, // header bg — your button-purple, reads as an accent
+              onPrimary: Colors.white, // header text
+              surface: scheme
+                  .primaryContainer, // calendar bg — your "card" white/dark surface
+              onSurface: scheme.onPrimary,
+            ),
+            timePickerTheme: TimePickerThemeData(
+              backgroundColor: scheme.primaryContainer,
+              hourMinuteColor: scheme.surface,
+              hourMinuteTextColor: scheme.onPrimary,
+              dialBackgroundColor: scheme.surface,
+              dialHandColor: scheme.secondaryContainer,
+              dayPeriodColor: scheme.surface,
+              dayPeriodTextColor: scheme.onPrimary,
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
     if (time == null) return;
 
     setState(() {

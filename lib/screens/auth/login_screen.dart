@@ -1,7 +1,7 @@
 import 'package:daily_notes_app/screens/home_screen.dart';
 import 'package:daily_notes_app/screens/auth/signup_screen.dart';
 import 'package:daily_notes_app/services/auth_methods.dart';
-import 'package:daily_notes_app/services/utils.dart';
+import 'package:daily_notes_app/utils/utils.dart';
 import 'package:daily_notes_app/widgets/input_field.dart';
 import 'package:daily_notes_app/widgets/round_button.dart';
 import 'package:flutter/material.dart';
@@ -22,12 +22,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.onPrimaryContainer,
-        title: Text('Login', style: Theme.of(context).textTheme.titleLarge!.copyWith(color: Theme.of(context).colorScheme.onPrimary),),
-        centerTitle: true,
-      ),
+      backgroundColor: scheme.primary,
       body: Center(
         child: Container(
           width: MediaQuery.of(context).size.width * 0.9,
@@ -35,6 +32,7 @@ class _LoginScreenState extends State<LoginScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              SizedBox(height: 20,),
               InputField(
               hintText: 'Enter Email', 
               labelText: 'Email', 
@@ -80,11 +78,10 @@ class _LoginScreenState extends State<LoginScreen> {
                 },
               btnText: 'Login', 
               isLoading: isLoading,
-              color: Theme.of(context).buttonTheme.colorScheme!.primary,
               ),
               Row(
                 children: [
-                  Text('Doesn\'t have an account?',),
+                  Text('Doesn\'t have an account?', style: TextStyle(color: scheme.onSecondary),),
                   TextButton(
                     style: ButtonStyle(
                       splashFactory: NoSplash.splashFactory,
@@ -92,7 +89,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     onPressed: (){
                     Navigator.push(context, MaterialPageRoute(builder: (ctx)=>SignupScreen()));
-                  }, child: Text('SignUp')
+                  }, child: Text('SignUp', style: TextStyle(color: scheme.onPrimary),)
                   ),
                 ],
               ),
@@ -103,16 +100,16 @@ class _LoginScreenState extends State<LoginScreen> {
                   InkWell(
                     onTap: (){},
                     child: SizedBox(
-                      height: 50,
-                      width: 50,
+                      height: 40,
+                      width: 40,
                       child: SvgPicture.asset('assets/images/google.svg'),
                     ),
                   ),
                   SizedBox(width: 40),
                   InkWell(
                     child: SizedBox(
-                      height: 60,
-                      width: 60,
+                      height: 40,
+                      width: 40,
                       child: SvgPicture.asset('assets/images/gmail.svg'),
                     ),
                   )

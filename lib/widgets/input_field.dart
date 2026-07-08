@@ -4,7 +4,7 @@ class InputField extends StatelessWidget {
   const InputField(
       {super.key,
       required this.hintText,
-      required this.labelText,
+      this.labelText,
       required this.controller,
       required this.keyboardType,
       required this.prefixIcon,
@@ -14,7 +14,7 @@ class InputField extends StatelessWidget {
       this.textCapitalization = TextCapitalization.words});
 
   final String hintText;
-  final String labelText;
+  final String? labelText;
   final TextEditingController controller;
   final TextInputType keyboardType;
   final IconData prefixIcon;
@@ -25,22 +25,37 @@ class InputField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return TextFormField(
       maxLines: maxLines,
       controller: controller,
       keyboardType: keyboardType,
       obscureText: obsecureText,
+      cursorColor: scheme.onPrimary,
+      style: TextStyle(color: scheme.onPrimary),
       textCapitalization: textCapitalization,
       decoration: InputDecoration(
           hintText: hintText,
           labelText: labelText,
+          labelStyle: TextStyle(color: scheme.onPrimary),
+          hintStyle: TextStyle(color: scheme.onPrimary),
+          filled: true,
+          fillColor: scheme.surface,
           prefixIcon: Icon(prefixIcon),
+          prefixIconColor: scheme.onPrimary,
           border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
               borderSide: BorderSide(
-                color: Colors.black,
-                width: 2,
-              ))),
+                color: scheme.onSurface,
+                width: 1,
+              )),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: BorderSide(
+                  color: scheme.onSurface,
+
+                )
+              )),
       validator: validator,
     );
   }

@@ -1,6 +1,7 @@
 import 'package:daily_notes_app/providers/theme_provider.dart';
 import 'package:daily_notes_app/screens/auth/login_screen.dart';
 import 'package:daily_notes_app/services/auth_methods.dart';
+import 'package:daily_notes_app/utils/utils.dart';
 import 'package:daily_notes_app/widgets/round_button.dart';
 import 'package:daily_notes_app/widgets/settings_tile.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -34,24 +35,24 @@ class _SettingsScreenState extends State<SettingsScreen> {
   final user = FirebaseAuth.instance.currentUser;
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+      backgroundColor: scheme.primary,
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.onPrimaryContainer,
+        backgroundColor: scheme.primary,
         leading: IconButton(
             onPressed: () {
               Navigator.pop(context);
             },
             icon: Icon(
               Icons.arrow_back_ios_new,
-              color: Colors.white,
+              color: scheme.onPrimary,
             )),
         title: Text(
           'Settings',
-          style: Theme.of(context)
-              .textTheme
-              .titleLarge!
-              .copyWith(color: Colors.white),
+          style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Theme.of(context).colorScheme.onPrimary),
         ),
         centerTitle: true,
       ),
@@ -67,11 +68,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 children: [
                   CircleAvatar(
                     radius: 30,
-                    backgroundColor:
-                        Theme.of(context).colorScheme.onPrimaryContainer,
+                    backgroundColor: scheme.onPrimaryContainer,
                     child: Icon(
                       Icons.person,
-                      color: Colors.white,
+                      color: scheme.onPrimary,
                       size: 30,
                     ),
                   ),
@@ -84,8 +84,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 height: 10,
               ),
               Text(
-                'My Profile',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                'PROFILE',
+                style: TextStyle(
+                    fontWeight: FontWeight.w500,
+                    fontSize: 15,
+                    color: scheme.onPrimary),
               ),
               SizedBox(
                 height: 10,
@@ -93,7 +96,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               SettingsTile(
                 title: 'User Name',
                 value: user?.displayName,
-                trailingIcon: Icons.chevron_right_rounded,
+                trailingIcon: Icons.edit,
                 topCard: true,
                 onTap: _showEditDialoge,
               ),
@@ -103,11 +106,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
               SettingsTile(
                   bottomCard: true, title: 'Email', value: user?.email),
               SizedBox(
-                height: 10,
+                height: 20,
               ),
               Text(
-                'Select Mode',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                'THEME MODE',
+                style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 15,
+                    color: scheme.onPrimary),
               ),
               SizedBox(
                 height: 10,
@@ -148,11 +154,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 );
               }),
               SizedBox(
-                height: 10,
+                height: 20,
               ),
               Text(
-                'Logout',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                'LOGOUT',
+                style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 15,
+                    color: scheme.onPrimary),
               ),
               SizedBox(
                 height: 10,
@@ -161,9 +170,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 btnText: 'Logout',
                 color: Colors.red,
                 onTap: () {
-                  AuthMethods().signOut();
-                  Navigator.pushReplacement(context,
-                      MaterialPageRoute(builder: (ctx) => LoginScreen()));
+                  _showLogoutDialog(context);
                 },
               )
             ],
@@ -174,12 +181,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Future<void> _showEditDialoge() {
+    final scheme = Theme.of(context).colorScheme;
     return showDialog(
         context: context,
         builder: (dialogContext) => StatefulBuilder(
               builder: (dialogContext, setDialogState) {
                 return AlertDialog(
-                  title: const Text('Edit User Name'),
+                  title: Text(
+                    'Edit User Name',
+                    style: TextStyle(color: scheme.onPrimary),
+                  ),
                   content: SizedBox(
                     width: MediaQuery.of(context).size.width * 0.9,
                     child: Column(
@@ -187,15 +198,25 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       children: [
                         TextFormField(
                           controller: userNameController,
+                          style: TextStyle(color: scheme.onPrimary),
+                          cursorColor: scheme.onPrimary,
                           decoration: InputDecoration(
-                            labelText: 'User Name',
-                            hintText: 'User Name',
-                            prefixIcon: const Icon(Icons.person),
-                            contentPadding: const EdgeInsets.all(10),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                          ),
+                              labelText: 'User Name',
+                              hintText: 'User Name',
+                              labelStyle: TextStyle(color: scheme.onPrimary),
+                              prefixIcon: const Icon(Icons.person),
+                              prefixIconColor: scheme.onPrimary,
+                              filled: true,
+                              fillColor: scheme.surface,
+                              contentPadding: const EdgeInsets.all(10),
+                              border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                  borderSide:
+                                      BorderSide(color: scheme.onSurface)),
+                              focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                  borderSide:
+                                      BorderSide(color: scheme.onSurface))),
                         ),
                       ],
                     ),
@@ -203,7 +224,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   actions: [
                     TextButton(
                       onPressed: () => Navigator.pop(dialogContext),
-                      child: const Text('Cancel'),
+                      child: Text(
+                        'Cancel',
+                        style: TextStyle(color: scheme.onPrimary),
+                      ),
                     ),
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
@@ -218,21 +242,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               .updateDisplayName(
                                   userNameController.text.trim());
                           if (mounted) {
+                            Navigator.pop(dialogContext);
+                            Utils().showToast('User name updated!');
                             setState(
                                 () {}); // refresh the settings screen behind it
-                            Navigator.pop(dialogContext);
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                  content: Text('User name is updated')),
-                            );
                           }
                         } catch (error) {
                           if (mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                  content:
-                                      Text('Error updating user name: $error')),
-                            );
+                            Utils().showToast('Error updating user name: $error');
                           }
                         } finally {
                           setDialogState(() => isLoading = false);
@@ -251,6 +268,52 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ],
                 );
               },
+            ));
+  }
+
+  void _showLogoutDialog(BuildContext context) async {
+    final colorScheme = Theme.of(context).colorScheme;
+    showDialog(
+        context: context,
+        builder: (dialogContext) => AlertDialog(
+              title: Text(
+                'Logout',
+                style: TextStyle(
+                    color: Theme.of(context).colorScheme.onPrimary,
+                    fontWeight: FontWeight.bold),
+              ),
+              content: Text(
+                'Are you sure you want to logout?',
+                style: TextStyle(
+                    fontWeight: FontWeight.w400,
+                    color: Theme.of(context).colorScheme.onPrimary),
+              ),
+              actions: [
+                TextButton(
+                    onPressed: () async {
+                      Navigator.pop(dialogContext);
+                    },
+                    child: Text(
+                      'Cancel',
+                      style: TextStyle(color: colorScheme.onSecondary),
+                    )),
+                ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor:
+                          Theme.of(context).colorScheme.onSecondary,
+                    ),
+                    onPressed: () async {
+                      Navigator.pop(dialogContext);
+                      AuthMethods().signOut();
+                      Navigator.pushReplacement(context,
+                          MaterialPageRoute(builder: (ctx) => LoginScreen()));
+                      Utils().showToast('Logged out!');
+                    },
+                    child: Text(
+                      'Logout',
+                      style: TextStyle(color: Colors.white),
+                    ))
+              ],
             ));
   }
 }

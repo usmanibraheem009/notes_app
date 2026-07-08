@@ -20,13 +20,14 @@ class SettingsTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return InkWell(
       onTap: onTap,
       child: Container(
         width: MediaQuery.of(context).size.width * 1,
         padding: EdgeInsets.all(10),
         decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.onPrimaryContainer,
+          color: scheme.primaryContainer,
           borderRadius: topCard == true
               ? BorderRadius.only(
                   topLeft: Radius.circular(10), topRight: Radius.circular(10))
@@ -47,22 +48,22 @@ class SettingsTile extends StatelessWidget {
                   style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
-                      color: Colors.white),
+                      color: scheme.onPrimary),
                 ),
                 if (value != null && value!.isNotEmpty)
                   Text(
                     value!,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w500,
-                      color: Colors.grey,
+                      color: scheme.onSecondary,
                     ),
                   ),
               ],
             ),
             Icon(
               trailingIcon,
-              color: Colors.white,
+              color: scheme.onPrimary,
             ),
           ],
         ),

@@ -1,6 +1,7 @@
 import 'package:daily_notes_app/constants/constants.dart';
 import 'package:daily_notes_app/screens/note_details.dart';
 import 'package:daily_notes_app/utils/notes_filter.dart';
+import 'package:daily_notes_app/utils/utils.dart';
 import 'package:daily_notes_app/widgets/note_card.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -27,22 +28,22 @@ class _FavoritesState extends State<Favorites> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+      backgroundColor: colorScheme.primary,
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.onPrimaryContainer,
+        backgroundColor: colorScheme.primary,
         leading: IconButton(
             onPressed: () => Navigator.pop(context),
             icon: Icon(
               Icons.arrow_back_ios_new,
-              color: Colors.white,
+              color: colorScheme.onPrimary,
             )),
         title: Text(
           'Favorites',
-          style: Theme.of(context)
-              .textTheme
-              .titleLarge!
-              .copyWith(color: Colors.white),
+          style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Theme.of(context).colorScheme.onPrimary),
         ),
         centerTitle: true,
       ),
@@ -54,14 +55,25 @@ class _FavoritesState extends State<Favorites> {
             children: [
               TextFormField(
                 controller: searchController,
+                cursorColor: colorScheme.onPrimary,
+                style: TextStyle(color: colorScheme.onPrimary),
                 decoration: InputDecoration(
-                  labelText: 'Search',
                   hintText: 'Search',
+                  hintStyle: TextStyle(color: colorScheme.onPrimary),
+                  prefixIconColor: colorScheme.onPrimary,
+                  filled: true,
+                  fillColor: Theme.of(context).colorScheme.surface,
                   prefixIcon: Icon(Icons.search),
                   contentPadding: EdgeInsets.all(10),
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: BorderSide(color: colorScheme.onSurface)),
+                  enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: BorderSide(color: colorScheme.onSurface)),
+                  focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: BorderSide(color: colorScheme.onSurface)),
                 ),
                 onChanged: (String value) {
                   setState(() {});
@@ -91,15 +103,22 @@ class _FavoritesState extends State<Favorites> {
                         final notesMap =
                             parseNotesMap(snapshot.data?.snapshot.value);
                         if (notesMap == null || notesMap.isEmpty) {
-                          return const Center(child: Text('No notes yet'));
+                          return Center(
+                              child: Text(
+                            'No notes yet',
+                            style: TextStyle(color: colorScheme.onPrimary),
+                          ));
                         }
 
                         final sorted = sortByTimeStamp(notesMap);
                         final favoritesOnly = filterFavorites(sorted);
 
                         if (favoritesOnly.isEmpty) {
-                          return const Center(
-                              child: Text('No favorite notes yet'));
+                          return Center(
+                              child: Text(
+                            'No favorite notes yet',
+                            style: TextStyle(color: colorScheme.onPrimary),
+                          ));
                         }
 
                         final query =
@@ -107,8 +126,11 @@ class _FavoritesState extends State<Favorites> {
                         final filtered = filterNotes(favoritesOnly, query);
 
                         if (filtered.isEmpty) {
-                          return const Center(
-                              child: Text('No matching favorites found'));
+                          return Center(
+                              child: Text(
+                            'No matching favorites found',
+                            style: TextStyle(color: colorScheme.onPrimary),
+                          ));
                         }
 
                         return GridView.builder(
@@ -135,17 +157,27 @@ class _FavoritesState extends State<Favorites> {
                                   description: value[NoteFields.description]
                                           ?.toString() ??
                                       '',
-                                  toggleFavorite: () => {
+                                  toggleFavorite: () {
                                     dbref.child(id).update({
                                       NoteFields.isFavorite:
                                           !(value[NoteFields.isFavorite])
-                                    })
+                                    });
+                                    Utils().showToast(value[NoteFields.isFavorite] ? 'Removed from favorites!': 'Added to favorites');
                                   },
                                   isFavorite:
                                       value[NoteFields.isFavorite] ?? false,
                                   onDelete: () {
                                     _showDeleteDialog(context, id);
                                   },
+                                  isPinned: value[NoteFields.isPinned],
+                                  togglePin: (){
+                                    dbref.child(id).update({
+                                      NoteFields.isPinned:
+                                          !(value[NoteFields.isPinned])
+                                    });
+                                    Utils().showToast(value[NoteFields.isPinned]? 'Note is unpinned!': 'Note is pinned to top!');
+                                  },
+                                  isLocked: false,
                                 ),
                               );
                             });
@@ -158,31 +190,40 @@ class _FavoritesState extends State<Favorites> {
   }
 
   void _showDeleteDialog(BuildContext context, String id) async {
+    final colorScheme = Theme.of(context).colorScheme;
     showDialog(
         context: context,
-        builder: (_) => AlertDialog(
+        builder: (dialogContext) => AlertDialog(
               title: Text(
                 'Delete Note',
-                style: TextStyle(fontWeight: FontWeight.bold),
+                style: TextStyle(
+                    color: Theme.of(context).colorScheme.onPrimary,
+                    fontWeight: FontWeight.bold),
               ),
               content: Text(
                 'Are you sure you want to delete this note?',
-                style: TextStyle(fontWeight: FontWeight.w400),
+                style: TextStyle(
+                    fontWeight: FontWeight.w400,
+                    color: Theme.of(context).colorScheme.onPrimary),
               ),
               actions: [
                 TextButton(
                     onPressed: () async {
-                      Navigator.pop(context);
+                      Navigator.pop(dialogContext);
                     },
-                    child: Text('Cancel')),
+                    child: Text(
+                      'Cancel',
+                      style: TextStyle(color: colorScheme.onSecondary),
+                    )),
                 ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       backgroundColor:
-                          Theme.of(context).colorScheme.onPrimaryContainer,
+                          Theme.of(context).colorScheme.onSecondary,
                     ),
                     onPressed: () async {
-                      Navigator.pop(context);
+                      Navigator.pop(dialogContext);
                       await dbref.child(id).remove();
+                      Utils().showToast('Note was deleted!');
                     },
                     child: Text(
                       'Delete',

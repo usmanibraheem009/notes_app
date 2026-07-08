@@ -96,8 +96,7 @@ class _NotesDrawerState extends State<NotesDrawer> {
                   .copyWith(color: colorScheme.onPrimary),
             ),
             onTap: () {
-              Navigator.pop(
-                  context);
+              Navigator.pop(context);
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => const SettingsScreen()),
@@ -117,14 +116,56 @@ class _NotesDrawerState extends State<NotesDrawer> {
                   .copyWith(color: colorScheme.onPrimary),
             ),
             onTap: () {
-              Navigator.pop(context);
-              AuthMethods().signOut();
-              Navigator.pushReplacement(
-                  context, MaterialPageRoute(builder: (ctx) => LoginScreen()));
+              _showLogoutDialog(context);
             },
           )
         ],
       ),
     );
+  }
+
+  void _showLogoutDialog(BuildContext context) async {
+    final colorScheme = Theme.of(context).colorScheme;
+    showDialog(
+        context: context,
+        builder: (dialogContext) => AlertDialog(
+              title: Text(
+                'Logout',
+                style: TextStyle(
+                    color: Theme.of(context).colorScheme.onPrimary,
+                    fontWeight: FontWeight.bold),
+              ),
+              content: Text(
+                'Are you sure you want to logout?',
+                style: TextStyle(
+                    fontWeight: FontWeight.w400,
+                    color: Theme.of(context).colorScheme.onPrimary),
+              ),
+              actions: [
+                TextButton(
+                    onPressed: () async {
+                      Navigator.pop(dialogContext);
+                    },
+                    child: Text(
+                      'Cancel',
+                      style: TextStyle(color: colorScheme.onSecondary),
+                    )),
+                ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor:
+                          Theme.of(context).colorScheme.onSecondary,
+                    ),
+                    onPressed: () async {
+                      Navigator.pop(dialogContext);
+                      AuthMethods().signOut();
+                      Navigator.pushReplacement(context,
+                          MaterialPageRoute(builder: (ctx) => LoginScreen()));
+                    },
+                    child: Text(
+                      'Logout',
+                      style: TextStyle(color: Colors.white),
+                    ))
+              ],
+            ));
   }
 }

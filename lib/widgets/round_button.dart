@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
 class RoundButton extends StatelessWidget {
-  const RoundButton({super.key, required this.btnText, required this.color, this.isLoading =false, required this.onTap});
+  const RoundButton({super.key, required this.btnText, this.color, this.isLoading =false, required this.onTap});
 
   final String btnText;
-  final Color color;
+  final Color? color;
   final bool isLoading;
   final VoidCallback onTap;
 
@@ -16,7 +16,7 @@ class RoundButton extends StatelessWidget {
         height: 50,
         width: double.infinity,
         decoration: BoxDecoration(
-          color: color,
+          color: color ?? Theme.of(context).colorScheme.secondaryContainer,
           borderRadius: BorderRadius.circular(15),
           border: Border.all(
             color: Theme.of(context).colorScheme.tertiary,
@@ -24,11 +24,11 @@ class RoundButton extends StatelessWidget {
           )
         ),
         child: Center(
-          child: isLoading? CircularProgressIndicator(): Text(
+          child: isLoading? CircularProgressIndicator(color: Colors.white,): Text(
             btnText, 
-            style: Theme.of(context).textTheme.titleLarge!.copyWith(color: Theme.of(context).colorScheme.onPrimary),),
+            style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w500),
         ),
       ),
-    );
+    ));
   }
 }

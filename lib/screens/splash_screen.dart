@@ -18,17 +18,18 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.onPrimaryContainer,
+      backgroundColor: Theme.of(context).colorScheme.secondary,
       body:Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             CircleAvatar(
+              backgroundColor: Theme.of(context).colorScheme.secondary,
               radius: 80,
               backgroundImage: AssetImage('assets/images/to_do.jpg'),
             ),
             SizedBox(height: 20,),
-            Text('Daily Notes App', style: Theme.of(context).textTheme.titleLarge!.copyWith(color: Theme.of(context).colorScheme.onPrimary),
+            Text('Daily Notes App', style: Theme.of(context).textTheme.titleLarge!.copyWith(color: Colors.white),
             ),
             SizedBox(height: 20,),
           ],

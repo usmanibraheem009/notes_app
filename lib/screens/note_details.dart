@@ -1,6 +1,7 @@
 import 'package:daily_notes_app/constants/constants.dart';
 import 'package:daily_notes_app/screens/add_note.dart';
 import 'package:daily_notes_app/services/pdf_service.dart';
+import 'package:daily_notes_app/utils/utils.dart';
 import 'package:daily_notes_app/widgets/round_button.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -14,31 +15,33 @@ class NoteDetails extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final noteRef = FirebaseDatabase.instance.ref('notes').child(FirebaseAuth.instance.currentUser!.uid).child(id);
+    final noteRef = FirebaseDatabase.instance
+        .ref('notes')
+        .child(FirebaseAuth.instance.currentUser!.uid)
+        .child(id);
     bool isFavorite = false;
+    final scheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+      backgroundColor: scheme.primary,
       appBar: AppBar(
         leading: IconButton(
           onPressed: () => Navigator.pop(context),
           icon: const Icon(Icons.arrow_back_ios_new),
-          color: Colors.white,
+          color: scheme.onPrimary,
         ),
         title: Text(
           'Note Details',
-          style: Theme.of(context)
-              .textTheme
-              .titleLarge!
-              .copyWith(color: Theme.of(context).colorScheme.onPrimary),
+          style:
+              TextStyle(fontWeight: FontWeight.bold, color: scheme.onPrimary),
         ),
         centerTitle: true,
-        backgroundColor: Theme.of(context).colorScheme.onPrimaryContainer,
+        backgroundColor: scheme.primary,
         actions: [
           PopupMenuButton<String>(
-              icon: const Icon(
+              icon: Icon(
                 Icons.more_vert,
-                color: Colors.white,
+                color: scheme.onPrimary,
               ),
               onSelected: (value) async {
                 switch (value) {
@@ -50,7 +53,7 @@ class NoteDetails extends StatelessWidget {
                     );
                     break;
                   case 'delete':
-                    _showDeleteDialog(context);
+                    _showDeleteDialog(context, id);
                     break;
 
                   case 'favorite':
@@ -62,9 +65,17 @@ class NoteDetails extends StatelessWidget {
                       value: 'edit',
                       child: Row(
                         children: [
-                          Icon(Icons.edit),
+                          Icon(
+                            Icons.edit,
+                            color: scheme.onPrimary,
+                          ),
                           SizedBox(width: 10),
-                          Text('Edit'),
+                          Text(
+                            'Edit',
+                            style: TextStyle(
+                              color: scheme.onPrimary,
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -72,33 +83,17 @@ class NoteDetails extends StatelessWidget {
                       value: 'delete',
                       child: Row(
                         children: [
-                          Icon(Icons.delete),
-                          SizedBox(width: 10),
-                          Text('Delete'),
-                        ],
-                      ),
-                    ),
-                    PopupMenuItem(
-                      value: 'favorite',
-                      child: Row(
-                        children: [
                           Icon(
-                            isFavorite == true ? Icons.favorite : Icons.favorite_border,
-                            color: Colors.amber,
+                            Icons.delete,
+                            color: scheme.onPrimary,
                           ),
                           SizedBox(width: 10),
-                          Text('Favorite'),
-                        ],
-                      ),
-                    ),
-                    PopupMenuDivider(),
-                    PopupMenuItem(
-                      value: 'share',
-                      child: Row(
-                        children: [
-                          Icon(Icons.share),
-                          SizedBox(width: 10),
-                          Text('Share'),
+                          Text(
+                            'Delete',
+                            style: TextStyle(
+                              color: scheme.onPrimary,
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -118,7 +113,13 @@ class NoteDetails extends StatelessWidget {
 
           final raw = snapshot.data?.snapshot.value;
           if (raw == null) {
-            return const Center(child: Text('Note not found'));
+            return Center(
+                child: Text(
+              'Note not found',
+              style: TextStyle(
+                color: scheme.onPrimary,
+              ),
+            ));
           }
 
           final value = Map<String, dynamic>.from(raw as Map);
@@ -132,14 +133,10 @@ class NoteDetails extends StatelessWidget {
               children: [
                 Text(
                   titleCase(title),
-                  style: Theme.of(context)
-                      .textTheme
-                      .headlineSmall!
-                      .copyWith(
-                        color: Theme.of(context).colorScheme.onSurface,
-                        fontWeight: FontWeight.bold,
-                      )
-                      .copyWith(),
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: scheme.onPrimary,
+                      fontSize: 22),
                 ),
                 const SizedBox(height: 6),
                 Text(
@@ -148,7 +145,7 @@ class NoteDetails extends StatelessWidget {
                       .textTheme
                       .bodyLarge!
                       .copyWith(
-                        color: Theme.of(context).colorScheme.onSurface,
+                        color: scheme.onSecondary,
                       )
                       .copyWith(fontWeight: FontWeight.w400),
                 ),
@@ -162,16 +159,11 @@ class NoteDetails extends StatelessWidget {
                           await PdfService.instance.downloadToDownloads(
                               title: title, description: description);
                           if (context.mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text('PDF saved to Storage')),
-                            );
+                            Utils().showToast('PDF saved into storage!');
                           }
                         } catch (error) {
                           if (context.mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                  content: Text('Failed to save PDF: $error')),
-                            );
+                            Utils().showToast('Failed to save PDF $error');
                           }
                         }
                       },
@@ -187,13 +179,13 @@ class NoteDetails extends StatelessWidget {
                           children: [
                             Icon(
                               Icons.arrow_downward_rounded,
-                              color: Colors.white,
+                              color: scheme.onPrimary,
                               fontWeight: FontWeight.bold,
                             ),
                             Text(
                               'PDF',
                               style: TextStyle(
-                                  color: Colors.white,
+                                  color: scheme.onPrimary,
                                   fontSize: 14,
                                   fontWeight: FontWeight.bold),
                             )
@@ -207,8 +199,6 @@ class NoteDetails extends StatelessWidget {
                     Expanded(
                       child: RoundButton(
                           btnText: 'Share Note',
-                          color:
-                              Theme.of(context).colorScheme.onPrimaryContainer,
                           onTap: () async {
                             try {
                               final file = await PdfService.instance
@@ -218,11 +208,7 @@ class NoteDetails extends StatelessWidget {
                                   title: title, files: [XFile(file.path)]));
                             } catch (error) {
                               if (context.mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                      content:
-                                          Text('Failed to share PDF: $error')),
-                                );
+                                Utils().showToast('Failed to share PDF $error');
                               }
                             }
                           }),
@@ -237,38 +223,45 @@ class NoteDetails extends StatelessWidget {
     );
   }
 
-  void _showDeleteDialog(BuildContext context) async {
+  void _showDeleteDialog(BuildContext context, String id) async {
+    final colorScheme = Theme.of(context).colorScheme;
     showDialog(
         context: context,
-        builder: (_) => AlertDialog(
+        builder: (dialogContext) => AlertDialog(
               title: Text(
                 'Delete Note',
-                style: TextStyle(fontWeight: FontWeight.bold),
+                style: TextStyle(
+                    color: Theme.of(context).colorScheme.onPrimary,
+                    fontWeight: FontWeight.bold),
               ),
               content: Text(
                 'Are you sure you want to delete this note?',
-                style: TextStyle(fontWeight: FontWeight.w400),
+                style: TextStyle(
+                    fontWeight: FontWeight.w400,
+                    color: Theme.of(context).colorScheme.onPrimary),
               ),
               actions: [
                 TextButton(
                     onPressed: () async {
-                      Navigator.pop(context);
+                      Navigator.pop(dialogContext);
                     },
-                    child: Text('Cancel')),
+                    child: Text(
+                      'Cancel',
+                      style: TextStyle(color: colorScheme.onSecondary),
+                    )),
                 ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       backgroundColor:
-                          Theme.of(context).colorScheme.onPrimaryContainer,
+                          Theme.of(context).colorScheme.onSecondary,
                     ),
                     onPressed: () async {
-                      Navigator.pop(context);
+                      Navigator.pop(dialogContext);
                       await FirebaseDatabase.instance
                           .ref('notes')
+                          .child(FirebaseAuth.instance.currentUser!.uid)
                           .child(id)
                           .remove();
-                      if (context.mounted) {
-                        Navigator.pop(context);
-                      }
+                      Utils().showToast('Note was deleted!');
                     },
                     child: Text(
                       'Delete',

@@ -18,7 +18,8 @@ class AppTheme {
       onSecondary: Color(0xff64748B),   //secondary text
       outline: Color(0xffF1F5F9),       //Divider
 
-      tertiary: Color(0xffFFFFFF)    //Drawer surface
+      tertiary: Color(0xffFFFFFF),    //Drawer surface
+      secondaryContainer: Color(0xff6366F1)   //Button color
 
     ),
   );
@@ -40,7 +41,8 @@ class AppTheme {
       onSecondary: Color(0xff94A3B8),   //secondary text
       outline: Color(0xff1E2131),       //Divider
 
-      tertiary: Color(0xff151724)    //Drawer surface
+      tertiary: Color(0xff151724),    //Drawer surface
+      secondaryContainer: Color(0xff6366F1), //Button color
 
     ),
   );

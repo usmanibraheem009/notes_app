@@ -1,43 +1,14 @@
 import 'package:daily_notes_app/constants/constants.dart';
 import 'package:daily_notes_app/screens/add_note.dart';
 import 'package:daily_notes_app/screens/note_details.dart';
+import 'package:daily_notes_app/services/lock_service.dart';
+import 'package:daily_notes_app/utils/notes_filter.dart';
+import 'package:daily_notes_app/utils/utils.dart';
 import 'package:daily_notes_app/widgets/note_card.dart';
 import 'package:daily_notes_app/widgets/drawer.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
-
-Map<String, dynamic>? _parseNotesMap(Object? raw) {
-  if (raw is! Map) return null;
-  try {
-    return Map<String, dynamic>.from(raw);
-  } catch (_) {
-    return null;
-  }
-}
-
-List<MapEntry<String, dynamic>> _sortByTimeStamp(
-    Map<String, dynamic> notesMap) {
-  final validEntries = notesMap.entries.where((e) => e.value is Map).toList();
-  validEntries.sort((a, b) {
-    final aTime = (a.value as Map)[NoteFields.timestamp] ?? 0;
-    final bTime = (b.value as Map)[NoteFields.timestamp] ?? 0;
-    return bTime.compareTo(aTime);
-  });
-  return validEntries;
-}
-
-List<MapEntry<String, dynamic>> _filterNotes(
-    List<MapEntry<String, dynamic>> entries, String query) {
-  if (query.isEmpty) return entries;
-  return entries.where((entry) {
-    final v = entry.value as Map;
-    final title = v[NoteFields.title]?.toString().toLowerCase() ?? '';
-    final description =
-        v[NoteFields.description]?.toString().toLowerCase() ?? '';
-    return title.contains(query) || description.contains(query);
-  }).toList();
-}
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -60,14 +31,16 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.primary,
+      backgroundColor: scheme.primary,
       appBar: AppBar(
-        iconTheme: const IconThemeData(color: Colors.white),
-        backgroundColor: Theme.of(context).colorScheme.primary,
+        iconTheme: IconThemeData(color: scheme.onPrimary),
+        backgroundColor: scheme.primary,
         title: Text(
           'Home Screen',
-          style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onPrimary),
+          style:
+              TextStyle(fontWeight: FontWeight.bold, color: scheme.onPrimary),
         ),
         centerTitle: true,
       ),
@@ -80,15 +53,25 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             TextFormField(
               controller: searchController,
+              cursorColor: scheme.onPrimary,
+              style: TextStyle(color: scheme.onPrimary),
               decoration: InputDecoration(
-                labelText: 'Search',
                 hintText: 'Search',
-                fillColor: Theme.of(context).colorScheme.surface,
+                hintStyle: TextStyle(color: scheme.onPrimary),
+                prefixIconColor: scheme.onPrimary,
+                filled: true,
+                fillColor: scheme.surface,
                 prefixIcon: Icon(Icons.search),
                 contentPadding: EdgeInsets.all(10),
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: BorderSide(color: scheme.onSurface)),
+                enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: BorderSide(color: scheme.onSurface)),
+                focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: BorderSide(color: scheme.onSurface)),
               ),
               onChanged: (String value) {
                 setState(() {});
@@ -103,8 +86,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     builder: (context, snapshot) {
                       if (snapshot.hasError) {
                         return Center(
-                            child:
-                                Text('Somthing went wrong: ${snapshot.error}'));
+                            child: Text(
+                          'Somthing went wrong: ${snapshot.error}',
+                          style: TextStyle(color: scheme.onPrimary),
+                        ));
                       }
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return const Center(
@@ -112,20 +97,26 @@ class _HomeScreenState extends State<HomeScreen> {
                         );
                       }
                       final notesMap =
-                          _parseNotesMap(snapshot.data?.snapshot.value);
+                          parseNotesMap(snapshot.data?.snapshot.value);
                       if (notesMap == null || notesMap.isEmpty) {
                         return Center(
-                          child: Text('No notes yet'),
+                          child: Text(
+                            'No notes yet',
+                            style: TextStyle(color: scheme.onPrimary),
+                          ),
                         );
                       }
 
-                      final sorted = _sortByTimeStamp(notesMap);
+                      final sorted = sortByTimeStamp(notesMap);
                       final query = searchController.text.trim().toLowerCase();
-                      final filtered = _filterNotes(sorted, query);
+                      final filtered = filterNotes(sorted, query);
 
                       if (filtered.isEmpty) {
-                        return const Center(
-                            child: Text('No matching notes found'));
+                        return Center(
+                            child: Text(
+                          'No matching notes found',
+                          style: TextStyle(color: scheme.onPrimary),
+                        ));
                       }
 
                       return GridView.builder(
@@ -137,17 +128,28 @@ class _HomeScreenState extends State<HomeScreen> {
                             childAspectRatio: 1,
                           ),
                           itemCount: filtered.length,
-                          itemBuilder: (context, index) {
+                          itemBuilder: (gridContext, index) {
                             final id = filtered[index].key;
                             final value = Map<String, dynamic>.from(
                                 filtered[index].value as Map);
                             return InkWell(
-                              onTap: () => Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (ctx) => NoteDetails(
-                                            id: id,
-                                          ))),
+                              onTap: () async {
+                                final isLocked =
+                                    value[NoteFields.isLocked] ?? false;
+                                if (isLocked) {
+                                  final success =
+                                      await LockService.instance.authenticate();
+
+                                  if (!success) return;
+                                  if (!mounted) return;
+                                }
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (ctx) => NoteDetails(
+                                              id: id,
+                                            )));
+                              },
                               child: NoteCard(
                                 title:
                                     value[NoteFields.title]?.toString() ?? '',
@@ -161,9 +163,42 @@ class _HomeScreenState extends State<HomeScreen> {
                                   dbref.child(id).update({
                                     'isFavorite': !value[NoteFields.isFavorite]
                                   });
+                                  Utils().showToast(value[NoteFields.isFavorite]
+                                      ? 'Removed from favorites!'
+                                      : 'Added to favorites!');
                                 },
                                 isFavorite:
                                     value[NoteFields.isFavorite] ?? false,
+                                isPinned: value[NoteFields.isPinned] ?? false,
+                                togglePin: () {
+                                  dbref.child(id).update({
+                                    'isPinned': !value[NoteFields.isPinned]
+                                  });
+                                  Utils().showToast(value[NoteFields.isPinned]
+                                      ? 'Note is unpinned!'
+                                      : 'Note is pinned to top!');
+                                },
+                                isLocked: value[NoteFields.isLocked] ?? false,
+                                toggleLock: () async {
+                                  final currentlyLocked =
+                                      value[NoteFields.isLocked] ?? false;
+
+                                  final success =
+                                      await LockService.instance.authenticate();
+
+                                  debugPrint('Authentication: $success');
+                                  if (!success) return;
+
+                                  await dbref.child(id).update({
+                                    NoteFields.isLocked: !currentlyLocked,
+                                  });
+
+                                  Utils().showToast(
+                                    currentlyLocked
+                                        ? 'Note unlocked!'
+                                        : 'Note locked!',
+                                  );
+                                },
                               ),
                             );
                           });
@@ -172,44 +207,55 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       )),
       floatingActionButton: FloatingActionButton(
-        backgroundColor: Theme.of(context).colorScheme.onPrimaryContainer,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(30),
+            side: BorderSide(color: scheme.onSurface)),
         onPressed: () {
           Navigator.push(
               context, MaterialPageRoute(builder: (ctx) => AddNote()));
         },
-        child: Icon(Icons.add, color: Colors.white),
+        child: Icon(Icons.add, color: scheme.onPrimary),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 
   void _showDeleteDialog(BuildContext context, String id) async {
+    final colorScheme = Theme.of(context).colorScheme;
     showDialog(
         context: context,
-        builder: (_) => AlertDialog(
+        builder: (dialogContext) => AlertDialog(
               title: Text(
                 'Delete Note',
-                style: TextStyle(fontWeight: FontWeight.bold),
+                style: TextStyle(
+                    color: Theme.of(context).colorScheme.onPrimary,
+                    fontWeight: FontWeight.bold),
               ),
               content: Text(
                 'Are you sure you want to delete this note?',
-                style: TextStyle(fontWeight: FontWeight.w400),
+                style: TextStyle(
+                    fontWeight: FontWeight.w400,
+                    color: Theme.of(context).colorScheme.onPrimary),
               ),
               actions: [
                 TextButton(
                     onPressed: () async {
-                      Navigator.pop(context);
+                      Navigator.pop(dialogContext);
                     },
-                    child: Text('Cancel')),
+                    child: Text(
+                      'Cancel',
+                      style: TextStyle(color: colorScheme.onSecondary),
+                    )),
                 ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       backgroundColor:
-                          Theme.of(context).colorScheme.onPrimaryContainer,
+                          Theme.of(context).colorScheme.onSecondary,
                     ),
                     onPressed: () async {
-                      Navigator.pop(context);
+                      Navigator.pop(dialogContext);
                       await dbref.child(id).remove();
+                      Utils().showToast('Note was deleted!');
                     },
                     child: Text(
                       'Delete',

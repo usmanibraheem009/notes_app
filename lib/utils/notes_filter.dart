@@ -13,8 +13,19 @@ List<MapEntry<String, dynamic>> sortByTimeStamp(
     Map<String, dynamic> notesMap) {
   final validEntries = notesMap.entries.where((e) => e.value is Map).toList();
   validEntries.sort((a, b) {
-    final aTime = (a.value as Map)[NoteFields.timestamp] ?? 0;
-    final bTime = (b.value as Map)[NoteFields.timestamp] ?? 0;
+
+    final aMap = a.value as Map;
+    final bMap = b.value as Map;
+
+   final aPinned = (aMap[NoteFields.isPinned] ?? false) == true;
+    final bPinned = (bMap[NoteFields.isPinned] ?? false) == true;
+
+    if(aPinned != bPinned){
+      return aPinned ? -1 : 1;
+    }
+
+    final aTime = (aMap[NoteFields.timestamp]) ?? 0;
+    final bTime = (bMap[NoteFields.timestamp]) ?? 0;
     return bTime.compareTo(aTime);
   });
   return validEntries;

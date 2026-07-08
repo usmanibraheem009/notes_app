@@ -7,6 +7,8 @@ class NoteFields {
   static const reminderEnabled = 'reminderEnabled';
   static const reminderDateTime = 'reminderDateTime';
   static const isFavorite = 'isFavorite';
+  static const isPinned = 'isPinned';
+  static const isLocked = 'isLocked';
 }
 
 String titleCase(String text) {

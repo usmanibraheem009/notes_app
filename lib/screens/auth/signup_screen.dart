@@ -1,6 +1,6 @@
 import 'package:daily_notes_app/screens/home_screen.dart';
 import 'package:daily_notes_app/services/auth_methods.dart';
-import 'package:daily_notes_app/services/utils.dart';
+import 'package:daily_notes_app/utils/utils.dart';
 import 'package:daily_notes_app/widgets/input_field.dart';
 import 'package:daily_notes_app/widgets/round_button.dart';
 import 'package:flutter/material.dart';
@@ -23,17 +23,9 @@ class _SignupScreenState extends State<SignupScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(onPressed: (){
-          Navigator.pop(context);
-        }, icon: Icon(Icons.arrow_back_ios_new, color: Theme.of(context).colorScheme.onPrimary,)
-        ),
-        backgroundColor: Theme.of(context).colorScheme.onPrimaryContainer,
-        title: Text('Signup', style: Theme.of(context).textTheme.titleLarge!.copyWith(color: Theme.of(context).colorScheme.onPrimary),
-      ),
-      centerTitle: true,
-        ),
+      backgroundColor: scheme.primary,
       body: Center(
         child: Container(
           width: MediaQuery.of(context).size.width * 0.9,
@@ -132,15 +124,14 @@ class _SignupScreenState extends State<SignupScreen> {
                     },
                   btnText: 'Signup',
                   isLoading: isLoading,
-                  color: Theme.of(context).buttonTheme.colorScheme!.primary,
                   ),
                   SizedBox(height: 10,),
                   Row(
                     children: [
-                      Text('Already have an account?'),
+                      Text('Already have an account?', style: TextStyle(color: scheme.onSecondary),),
                       TextButton(onPressed: (){
                         Navigator.pop(context);
-                      }, child: Text('Login')
+                      }, child: Text('Login', style: TextStyle(color: scheme.onPrimary),)
                       ),
                     ],
                   ),

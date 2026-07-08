@@ -1,12 +1,15 @@
 import 'package:daily_notes_app/constants/constants.dart';
 import 'package:daily_notes_app/services/notification_service.dart';
+import 'package:daily_notes_app/utils/utils.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 
 class NotesProvider extends ChangeNotifier {
   bool isLoading = false;
-  final dbRef = FirebaseDatabase.instance.ref('notes').child(FirebaseAuth.instance.currentUser!.uid);
+  final dbRef = FirebaseDatabase.instance
+      .ref('notes')
+      .child(FirebaseAuth.instance.currentUser!.uid);
   String? errorMessage;
 
   Future<void> addNote(
@@ -14,7 +17,9 @@ class NotesProvider extends ChangeNotifier {
       required String description,
       required bool reminderEnabled,
       DateTime? reminderDateTime,
-      bool? isFavorite}) async {
+      bool? isFavorite,
+      bool? isLocked,
+      bool? isPinned}) async {
     isLoading = true;
     errorMessage = null;
     notifyListeners();
@@ -29,7 +34,10 @@ class NotesProvider extends ChangeNotifier {
         NoteFields.reminderDateTime: reminderDateTime?.microsecondsSinceEpoch,
         NoteFields.createdAt: ServerValue.timestamp,
         NoteFields.isFavorite: isFavorite,
+        NoteFields.isPinned: isPinned,
+        NoteFields.isLocked: isLocked,
       });
+      Utils().showToast('Note added successfully!');
       if (reminderEnabled && reminderDateTime != null) {
         NotificationService.instance.scheduleReminder(
             noteId: newRef.key!,
@@ -51,7 +59,9 @@ class NotesProvider extends ChangeNotifier {
       required String description,
       bool reminderEnabled = false,
       DateTime? reminderDateTime,
-      bool? isFavorite}) async {
+      bool? isFavorite,
+      bool? isLocked,
+      bool? isPinned}) async {
     isLoading = true;
     errorMessage = null;
     notifyListeners();
@@ -63,7 +73,10 @@ class NotesProvider extends ChangeNotifier {
         NoteFields.reminderEnabled: reminderEnabled,
         NoteFields.reminderDateTime: reminderDateTime?.microsecondsSinceEpoch,
         NoteFields.isFavorite: isFavorite,
+        NoteFields.isPinned: isPinned,
+        NoteFields.isLocked: isLocked,
       });
+      Utils().showToast('Note updated successfully!');
       if (reminderEnabled && reminderDateTime != null) {
         NotificationService.instance.scheduleReminder(
             noteId: id,
@@ -92,14 +105,18 @@ class NotesProvider extends ChangeNotifier {
       required String description,
       required bool reminderEnabled,
       DateTime? reminderDateTime,
-      bool? isFavorite}) async {
+      bool? isFavorite,
+      bool? isLocked,
+      bool? isPinned}) async {
     if (id == null) {
       return addNote(
           title: title,
           description: description,
           reminderEnabled: reminderEnabled,
           reminderDateTime: reminderDateTime,
-          isFavorite: isFavorite);
+          isFavorite: isFavorite,
+          isLocked: isLocked,
+          isPinned: isPinned);
     } else {
       return updateNote(
           id: id,
@@ -107,7 +124,9 @@ class NotesProvider extends ChangeNotifier {
           description: description,
           reminderEnabled: reminderEnabled,
           reminderDateTime: reminderDateTime,
-          isFavorite: isFavorite);
+          isFavorite: isFavorite,
+          isLocked: isLocked,
+          isPinned: isPinned);
     }
   }
 }
