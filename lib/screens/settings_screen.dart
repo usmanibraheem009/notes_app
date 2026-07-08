@@ -232,11 +232,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         backgroundColor:
-                            Theme.of(context).colorScheme.onPrimaryContainer,
+                            Theme.of(context).colorScheme.onSecondary,
                       ),
                       onPressed: () async {
                         setDialogState(
-                            () => isLoading = true); // rebuilds the DIALOG now
+                            () => isLoading = true);
                         try {
                           await FirebaseAuth.instance.currentUser!
                               .updateDisplayName(
@@ -245,7 +245,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             Navigator.pop(dialogContext);
                             Utils().showToast('User name updated!');
                             setState(
-                                () {}); // refresh the settings screen behind it
+                                () {});
                           }
                         } catch (error) {
                           if (mounted) {

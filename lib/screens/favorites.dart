@@ -1,5 +1,6 @@
 import 'package:daily_notes_app/constants/constants.dart';
 import 'package:daily_notes_app/screens/note_details.dart';
+import 'package:daily_notes_app/services/lock_service.dart';
 import 'package:daily_notes_app/utils/notes_filter.dart';
 import 'package:daily_notes_app/utils/utils.dart';
 import 'package:daily_notes_app/widgets/note_card.dart';
@@ -177,7 +178,22 @@ class _FavoritesState extends State<Favorites> {
                                     });
                                     Utils().showToast(value[NoteFields.isPinned]? 'Note is unpinned!': 'Note is pinned to top!');
                                   },
-                                  isLocked: false,
+                                  isLocked: value[NoteFields.isLocked] ?? false,
+                                  toggleLock: () async {
+                                  final currentlyLocked =
+                                      value[NoteFields.isLocked] ?? false;
+                                      await LockService.instance.authenticate();
+
+                                  await dbref.child(id).update({
+                                    NoteFields.isLocked: !currentlyLocked,
+                                  });
+
+                                  Utils().showToast(
+                                    currentlyLocked
+                                        ? 'Note unlocked!'
+                                        : 'Note locked!',
+                                  );
+                                },
                                 ),
                               );
                             });

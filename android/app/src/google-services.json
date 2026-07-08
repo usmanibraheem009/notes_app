@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "837108840601",
+    "firebase_url": "https://daily-notes-app-66d73-default-rtdb.firebaseio.com",
+    "project_id": "daily-notes-app-66d73",
+    "storage_bucket": "daily-notes-app-66d73.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:837108840601:android:545d2e035aad680f922008",
+        "android_client_info": {
+          "package_name": "com.example.daily_notes_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "837108840601-sjef7c4vba9oo6q3tfpt8pqmq3m3anbd.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.daily_notes_app",
+            "certificate_hash": "9782d71e5f387436541288934b43678f76655329"
+          }
+        },
+        {
+          "client_id": "837108840601-qd9hmh3uer20ekprh2m5ec9k1u9lal2p.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAzHHpBXx-WQhYFlVk6SOLbD-hRC2gE_YU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "837108840601-qd9hmh3uer20ekprh2m5ec9k1u9lal2p.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

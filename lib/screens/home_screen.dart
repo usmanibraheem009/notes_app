@@ -182,12 +182,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 toggleLock: () async {
                                   final currentlyLocked =
                                       value[NoteFields.isLocked] ?? false;
-
-                                  final success =
                                       await LockService.instance.authenticate();
-
-                                  debugPrint('Authentication: $success');
-                                  if (!success) return;
 
                                   await dbref.child(id).update({
                                     NoteFields.isLocked: !currentlyLocked,
@@ -207,7 +202,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       )),
       floatingActionButton: FloatingActionButton(
-        backgroundColor: Theme.of(context).colorScheme.surface,
+        backgroundColor: Theme.of(context).colorScheme.primaryContainer,
         shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(30),
             side: BorderSide(color: scheme.onSurface)),
